@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -15,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
 
+
     private final Map<Long, Film> filmMap = new HashMap<>();
 
     @GetMapping
@@ -25,17 +27,8 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film create(@RequestBody Film film) {
+    public Film create(@RequestBody @Valid Film film) {
         log.info("Получен запрос на создание фильма: {}", film);
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("Название фильма не может быть пустым");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Описание не может быть больше чем 200 символов");
-        }
-        if (film.getDuration() < 0) {
-            throw new ValidationException("Продолжительность должна быть положительным числом");
-        }
         if (film.getReleaseDate().isBefore(LocalDate.of(1985, 12, 28))) {
             throw new ValidationException("Дата релиза должна быть позднее 28.12.1985");
         }
@@ -47,7 +40,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film newFilm) {
+    public Film update(@RequestBody @Valid Film newFilm) {
         log.info("Получен запрос на обновление фильма: {}", newFilm);
         if (!filmMap.containsKey(newFilm.getId())) {
             throw new ValidationException("Указанного фильма не найдено. Обновление невозможно");

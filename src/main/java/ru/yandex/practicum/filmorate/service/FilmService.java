@@ -21,8 +21,8 @@ public class FilmService {
 
     public Film create(Film film) {
         log.info("Получен запрос на создание фильма: {}", film);
-        if (film.getReleaseDate().isBefore(LocalDate.of(1985, 12, 28))) {
-            throw new ValidationException("Дата релиза должна быть позднее 28.12.1985");
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Дата релиза должна быть позднее 28.12.1895");
         }
         film.setId(getNextId());
         filmMap.put(film.getId(), film);

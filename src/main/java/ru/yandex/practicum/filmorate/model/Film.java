@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -25,5 +26,9 @@ public class Film {
     private Integer duration;
 
     private Set<Long> likeList;
+
+    public Film() {
+        likeList = new HashSet<>();
+    }
 }
 

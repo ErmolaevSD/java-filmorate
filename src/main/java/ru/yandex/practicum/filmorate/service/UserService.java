@@ -58,7 +58,7 @@ public class UserService {
             throw new NotFoundException("У пользоателя нет друзей. Удаление невозможно.");
         }
         if (!user.getUserFriends().contains(friendId)) {
-            throw new ValidationException("Пользователя " + friend.getName() + " нет в друзьях у " + user.getName());
+            log.info("Запрос не обработан. Пользователя {} нет в друзьях у {}", friend.getName(), user.getName());
         }
         log.info("Успешно обработан запрос на удаление {} из друзей у {}", friend, user);
         user.getUserFriends().remove(friendId);

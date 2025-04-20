@@ -1,55 +1,68 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 @Slf4j
+@Service
+@Data
+@RequiredArgsConstructor
 public class UserService {
 
-    private final Map<Long, User> usersMap = new HashMap<>();
+    private final InMemoryUserStorage userStorage;
 
-    public Collection<User> findAll() {
-        log.info("Получен запрос на получение пользователей");
-        return Collections.unmodifiableCollection(usersMap.values());
+    public Optional<User> findUserById(Long id) {
+        return Optional.ofNullable(userStorage.getUserMap().get(id));
     }
 
-    public User create(User user) {
-        log.info("Получен запрос на создание пользователя: {}", user);
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
+    public User addFriend(Long userId, Long friendId) {
+        log.info("Получен запрос добавление {} в друзья к {}", userStorage.getUserMap().get(userId), userStorage.getUserMap().get(friendId));
+        User user = userStorage.getUserMap().get(userId);
+        User friend = userStorage.getUserMap().get(friendId);
+        if (isNull(userStorage.getUserMap().get(userId)) || isNull(userStorage.getUserMap().get(friendId))) {
+            throw new NotFoundException("Пользователь не найден.");
         }
-        user.setId(getNextId());
-        usersMap.put(user.getId(), user);
-        log.info("Успешно обработан запрос на создание пользователя: {}", user);
-        return user;
-    }
-
-    public User update(User newUser) {
-        log.info("Получен запрос на обновление пользователя: {}", newUser);
-        if (!usersMap.containsKey(newUser.getId())) {
-            throw new ValidationException("Указанного пользователя не найдено. Обновление невозможно");
+        if (user.getUserFriends() != null && user.getUserFriends().contains(friendId)) {
+            log.info("Ошибка обработки запроса на добавление в друзья. Пользователь уже в друзьях");
+            throw new ValidationException("Пользователь " + friend.getName() + " уже в друзьях у " + user.getName());
         }
-        User oldUser = usersMap.get(newUser.getId());
-        oldUser.setBirthday(newUser.getBirthday());
-        oldUser.setLogin(newUser.getLogin());
-        oldUser.setEmail(newUser.getEmail());
-        oldUser.setName(newUser.getName());
-        log.info("Успешно обработан запрос на обновление пользователя: {}", newUser);
-        return oldUser;
+        log.info("Успешно обработан запрос на добавление {} в друзья к {}", friend, user);
+        user.getUserFriends().add(friendId);
+        friend.getUserFriends().add(userId);
+        return friend;
     }
 
-    private long getNextId() {
-        long currentMaxId = usersMap.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    public User deleteFriend(Long userId, Long friendId) {
+        log.info("Получен запрос удаление {} из друзей у {}", userStorage.getUserMap().get(userId).getName(), userStorage.getUserMap().get(friendId).getName());
+        User user = userStorage.getUserMap().get(userId);
+        User friend = userStorage.getUserMap().get(friendId);
+        if (isNull(user.getUserFriends())) {
+            throw new NotFoundException("У пользоателя нет друзей. Удаление невозможно.");
+        }
+        if (!user.getUserFriends().contains(friendId)) {
+            throw new ValidationException("Пользователя " + friend.getName() + " нет в друзьях у " + user.getName());
+        }
+        log.info("Успешно обработан запрос на удаление {} из друзей у {}", friend, user);
+        user.getUserFriends().remove(friendId);
+        friend.getUserFriends().remove(userId);
+        return friend;
+    }
+
+    public Set<Long> findAllFriends(Long id) {
+        if (isNull(userStorage.getUserMap().get(id))) {
+            throw new NotFoundException("Пользователь с id " + id + "не найден");
+        }
+        return Set.copyOf(userStorage.getUserMap().get(id).getUserFriends());
     }
 }

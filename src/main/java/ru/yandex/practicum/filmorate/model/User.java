@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -23,4 +24,6 @@ public class User {
 
     @Past(message = "Дата рождения не может быть в будущем времени")
     private LocalDate birthday;
+
+    private Set<Long> userFriends;
 }

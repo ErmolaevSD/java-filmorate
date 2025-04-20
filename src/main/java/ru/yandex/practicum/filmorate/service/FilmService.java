@@ -1,56 +1,52 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
-@Slf4j
+import static java.util.Objects.isNull;
+
 @Service
+@Slf4j
+@RequiredArgsConstructor
+@Data
 public class FilmService {
 
-    private final Map<Long, Film> filmMap = new HashMap<>();
+    private final InMemoryFilmStorage filmStorage;
+    private final InMemoryUserStorage userStorage;
 
-    public Collection<Film> findAll() {
-        log.info("Получен запрос на получение списка фильмов");
-        return Collections.unmodifiableCollection(filmMap.values());
+    public Optional<Film> findFilmById(Long id) {
+        return Optional.ofNullable(filmStorage.getFilmMap().get(id));
     }
 
-    public Film create(Film film) {
-        log.info("Получен запрос на создание фильма: {}", film);
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Дата релиза должна быть позднее 28.12.1895");
+    public Film addLikeFromFilm(Long filmId, Long userId) {
+        log.info("Получен запрос на добавление лайка к фильму {} от пользователя {}", filmStorage.getFilmMap().get(filmId), userStorage.getUserMap().get(userId));
+
+        if (isNull(filmStorage.getFilmMap().get(filmId))) {
+            throw new NotFoundException("Фильм с id " + filmId + "не найден");
         }
-        film.setId(getNextId());
-        filmMap.put(film.getId(), film);
-        log.info("Успешно обработан запрос на создание фильма: {}", film);
-
-        return film;
-    }
-
-    public Film update(Film newFilm) {
-        log.info("Получен запрос на обновление фильма: {}", newFilm);
-        if (!filmMap.containsKey(newFilm.getId())) {
-            throw new ValidationException("Указанного фильма не найдено. Обновление невозможно");
+        if (filmStorage.getFilmMap().get(filmId).getLikeList().contains(userId)) {
+            throw new ValidationException("Пользователем " + userStorage.getUserMap().get(userId).getName() + "лайки уже поставлен");
         }
-        Film oldFilm = filmMap.get(newFilm.getId());
-        oldFilm.setDescription(newFilm.getDescription());
-        oldFilm.setName(newFilm.getName());
-        oldFilm.setReleaseDate(newFilm.getReleaseDate());
-        oldFilm.setDuration(newFilm.getDuration());
-        log.info("Успешно обработан запрос на обновление фильма: {}", newFilm);
-        return oldFilm;
+        filmStorage.getFilmMap().get(filmId).getLikeList().add(userId);
+        return filmStorage.getFilmMap().get(filmId);
     }
 
-    private long getNextId() {
-        long currentMaxId = filmMap.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    public List<Film> favoriteFilm() {
+        List<Film> sortedFilm = (List<Film>) filmStorage.getFilmMap().values();
+        return sortedFilm.stream()
+                .sorted(Comparator.comparingInt((film) -> filmStorage.getFilmMap().get(film).getLikeList().size()))
+                .limit(10)
+                .toList();
     }
 }

@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -37,9 +38,15 @@ public class UserService {
             log.info("Ошибка обработки запроса на добавление в друзья. Пользователь уже в друзьях");
             throw new ValidationException("Пользователь " + friend.getName() + " уже в друзьях у " + user.getName());
         }
-        log.info("Успешно обработан запрос на добавление {} в друзья к {}", friend, user);
+        if (user.getUserFriends() == null) {
+            user.setUserFriends(new HashSet<>());
+        }
+        if (friend.getUserFriends() == null) {
+            friend.setUserFriends(new HashSet<>());
+        }
         user.getUserFriends().add(friendId);
         friend.getUserFriends().add(userId);
+        log.info("Успешно обработан запрос на добавление {} в друзья к {}", friend, user);
         return friend;
     }
 

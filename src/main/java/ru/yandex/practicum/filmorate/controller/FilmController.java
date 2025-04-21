@@ -20,8 +20,6 @@ public class FilmController {
         return Optional.ofNullable(filmService.addLikeFromFilm(id, userId));
     }
 
-
-
     @GetMapping("/{id}")
     public Optional<Film> findFilm(@RequestBody @PathVariable Long id) {
         return filmService.findFilmById(id);

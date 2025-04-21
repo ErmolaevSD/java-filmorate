@@ -10,8 +10,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
@@ -25,6 +27,14 @@ public class UserService {
 
     public Optional<User> findUserById(Long id) {
         return Optional.ofNullable(userStorage.getUserMap().get(id));
+    }
+
+    public List<Long> commonFriend(Long userID, Long friendID) {
+        Set<Long> userFriends = userStorage.getUserMap().get(userID).getUserFriends();
+        Set<Long> friendFriends = userStorage.getUserMap().get(friendID).getUserFriends();
+        return userFriends.stream()
+                .filter(friendFriends::contains)
+                .toList();
     }
 
     public User addFriend(Long userId, Long friendId) {
@@ -51,11 +61,17 @@ public class UserService {
     }
 
     public User deleteFriend(Long userId, Long friendId) {
+        if (isNull(userStorage.getUserMap())) {
+            throw new NotFoundException("Список пользователей пуст");
+        }
+        if (isNull(userStorage.getUserMap().get(userId)) || isNull(userStorage.getUserMap().get(friendId))) {
+            throw new NotFoundException("Пользователя не существует");
+        }
         log.info("Получен запрос удаление {} из друзей у {}", userStorage.getUserMap().get(userId).getName(), userStorage.getUserMap().get(friendId).getName());
         User user = userStorage.getUserMap().get(userId);
         User friend = userStorage.getUserMap().get(friendId);
         if (isNull(user.getUserFriends())) {
-            throw new NotFoundException("У пользоателя нет друзей. Удаление невозможно.");
+            throw new NotFoundException("У пользователя нет друзей. Удаление невозможно.");
         }
         if (!user.getUserFriends().contains(friendId)) {
             log.info("Запрос не обработан. Пользователя {} нет в друзьях у {}", friend.getName(), user.getName());

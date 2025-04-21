@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,7 +23,10 @@ public class UserController {
         return Optional.ofNullable(userService.addFriend(id, friendId));
     }
 
-    // GET - запрос на общих друзей двух пользователей
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<Long> getCommonFriend(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.commonFriend(id, otherId);
+    }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public Optional<User> deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {

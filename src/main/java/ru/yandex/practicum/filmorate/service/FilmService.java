@@ -57,7 +57,7 @@ public class FilmService {
 
     public List<Film> favoriteFilm(Long x) {
         return filmStorage.getFilmMap().values().stream()
-                .sorted(Comparator.comparingInt(film ->film.getLikeList().size()))
+                .sorted(Comparator.comparingInt(film -> film.getLikeList().size()))
                 .limit(x)
                 .toList();
     }

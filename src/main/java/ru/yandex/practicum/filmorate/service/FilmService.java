@@ -62,6 +62,6 @@ public class FilmService {
         return filmStorage.getFilmMap().values().stream()
                 .sorted(Comparator.comparingInt(film -> film.getLikeList().size()))
                 .limit(x)
-                .toList();
+                .toList().reversed();
     }
 }

@@ -36,7 +36,7 @@ public class UserService {
                 .toList();
     }
 
-    public User addFriend(Long userId, Long friendId) {
+    public void addFriend(Long userId, Long friendId) {
         log.info("Получен запрос добавление {} в друзья к {}", userStorage.getUserMap().get(userId), userStorage.getUserMap().get(friendId));
         User user = userStorage.getUserMap().get(userId);
         User friend = userStorage.getUserMap().get(friendId);
@@ -56,7 +56,6 @@ public class UserService {
         user.getUserFriends().add(friendId);
         friend.getUserFriends().add(userId);
         log.info("Успешно обработан запрос на добавление {} в друзья к {}", friend, user);
-        return friend;
     }
 
     public User deleteFriend(Long userId, Long friendId) {

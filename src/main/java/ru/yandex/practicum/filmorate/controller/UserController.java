@@ -29,8 +29,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public Optional<User> deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return Optional.ofNullable(userService.deleteFriend(id, friendId));
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")

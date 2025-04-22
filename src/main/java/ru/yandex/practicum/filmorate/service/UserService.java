@@ -58,7 +58,7 @@ public class UserService {
         log.info("Успешно обработан запрос на добавление {} в друзья к {}", friend, user);
     }
 
-    public User deleteFriend(Long userId, Long friendId) {
+    public void deleteFriend(Long userId, Long friendId) {
         if (isNull(userStorage.getUserMap())) {
             throw new NotFoundException("Список пользователей пуст");
         }
@@ -77,7 +77,6 @@ public class UserService {
         log.info("Успешно обработан запрос на удаление {} из друзей у {}", friend, user);
         user.getUserFriends().remove(friendId);
         friend.getUserFriends().remove(userId);
-        return friend;
     }
 
     public Set<Long> findAllFriends(Long id) {

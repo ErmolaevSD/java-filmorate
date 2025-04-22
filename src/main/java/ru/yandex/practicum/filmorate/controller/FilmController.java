@@ -12,12 +12,23 @@ import java.util.*;
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
-
     private final FilmService filmService;
 
     @PutMapping("/{id}/like/{userId}")
-    public Optional<Film> addLike(@PathVariable Long id, @PathVariable Long userId) {
-        return Optional.ofNullable(filmService.addLikeFromFilm(id, userId));
+    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.addLikeFromFilm(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@RequestBody @PathVariable Long id, @PathVariable Long userId) {
+        filmService.deleteLikeFromFilm(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> favoriteFilm(@RequestParam(required = false) Long count) {
+        if (count == null) {
+            return filmService.favoriteFilm(10L);
+        } else return filmService.favoriteFilm(count);
     }
 
     @GetMapping("/{id}")

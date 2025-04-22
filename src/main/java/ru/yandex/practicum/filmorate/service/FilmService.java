@@ -29,7 +29,7 @@ public class FilmService {
         return Optional.ofNullable(filmStorage.getFilmMap().get(id));
     }
 
-    public Film addLikeFromFilm(Long filmId, Long userId) {
+    public void addLikeFromFilm(Long filmId, Long userId) {
         log.info("Получен запрос на добавление лайка к фильму {} от пользователя {}", filmStorage.getFilmMap().get(filmId), userStorage.getUserMap().get(userId));
 
         if (isNull(filmStorage.getFilmMap().get(filmId))) {
@@ -39,14 +39,26 @@ public class FilmService {
             throw new ValidationException("Пользователем " + userStorage.getUserMap().get(userId).getName() + "лайки уже поставлен");
         }
         filmStorage.getFilmMap().get(filmId).getLikeList().add(userId);
-        return filmStorage.getFilmMap().get(filmId);
     }
 
-    public List<Film> favoriteFilm() {
-        List<Film> sortedFilm = (List<Film>) filmStorage.getFilmMap().values();
-        return sortedFilm.stream()
-                .sorted(Comparator.comparingInt((film) -> filmStorage.getFilmMap().get(film).getLikeList().size()))
-                .limit(10)
+    public void deleteLikeFromFilm(Long filmId, Long userId) {
+        if (isNull(filmStorage.getFilmMap().get(filmId))) {
+            throw new NotFoundException("Указанного фильма не найдено");
+        }
+        if (isNull(userStorage.getUserMap().get(userId))) {
+            throw new NotFoundException("Указанного пользователя не найдено");
+        }
+        if (!filmStorage.getFilmMap().get(filmId).getLikeList().contains(userId)) {
+            throw new NotFoundException("Указанный пользователь лайк к фильму не ставил");
+        }
+        filmStorage.getFilmMap().get(filmId).getLikeList().remove(userId);
+    }
+
+
+    public List<Film> favoriteFilm(Long x) {
+        return filmStorage.getFilmMap().values().stream()
+                .sorted(Comparator.comparingInt(film ->film.getLikeList().size()))
+                .limit(x)
                 .toList();
     }
 }

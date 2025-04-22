@@ -19,8 +19,8 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Optional<User> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        return Optional.ofNullable(userService.addFriend(id, friendId));
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.addFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")

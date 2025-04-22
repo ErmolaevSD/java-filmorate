@@ -35,6 +35,9 @@ public class FilmService {
         if (isNull(filmStorage.getFilmMap().get(filmId))) {
             throw new NotFoundException("Фильм с id " + filmId + "не найден");
         }
+        if (isNull(userStorage.getUserMap().get(userId))) {
+            throw new NotFoundException("Пользователь не найден");
+        }
         if (filmStorage.getFilmMap().get(filmId).getLikeList().contains(userId)) {
             throw new ValidationException("Пользователем " + userStorage.getUserMap().get(userId).getName() + "лайки уже поставлен");
         }

@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,15 +13,15 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void createValidFilm() {
-        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
 
         assertTrue(validator.validate(film).isEmpty());
     }
 
     @Test
     void createUnvalidatedName() {
-        Film nullNameFilm = new Film(null, null, "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
-        Film blankNameFilm = new Film(null, "", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film nullNameFilm = new Film(null, null, "Боевик", LocalDate.of(2021, 10, 10), 100);
+        Film blankNameFilm = new Film(null, "", "Боевик", LocalDate.of(2021, 10, 10), 100);
 
         assertFalse(validator.validate(nullNameFilm).isEmpty());
         assertFalse(validator.validate(blankNameFilm).isEmpty());
@@ -30,23 +29,23 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void createUnvalidatedDescription() {
-        Film unvalidatedFilm = new Film(null, "Титаник", "a".repeat(201), LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film unvalidatedFilm = new Film(null, "Титаник", "a".repeat(201), LocalDate.of(2021, 10, 10), 100);
 
         assertFalse(validator.validate(unvalidatedFilm).isEmpty());
     }
 
     @Test
     void createUnvalidatedDuration() {
-        Film unvalidatedFilm = new Film(null, "Титаник", "Мелодрамма", LocalDate.of(2021, 10, 10), -100, new HashSet<>());
+        Film unvalidatedFilm = new Film(null, "Титаник", "Мелодрамма", LocalDate.of(2021, 10, 10), -100);
 
         assertFalse(validator.validate(unvalidatedFilm).isEmpty());
     }
 
     @Test
     void createUnvalidatedReleasedDate() {
-        Film unvalidatedFilm = new Film(null, "Титаник", "Мелодрамма", LocalDate.of(1500, 10, 10), 100,new HashSet<>());
+        Film unvalidatedFilm = new Film(null, "Титаник", "Мелодрамма", LocalDate.of(1500, 10, 10), 100);
 
-        Film unvalidatedFilm1 = new Film(null, "Титаник", "Мелодрамма", LocalDate.of(3000, 10, 10), 100, new HashSet<>());
+        Film unvalidatedFilm1 = new Film(null, "Титаник", "Мелодрамма", LocalDate.of(3000, 10, 10), 100);
 
         assertThrows(ValidationException.class, () -> filmStorage.create(unvalidatedFilm));
         assertFalse(validator.validate(unvalidatedFilm1).isEmpty());
@@ -54,8 +53,8 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void findAllTest() {
-        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
-        Film film1 = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
+        Film film1 = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
         filmStorage.create(film);
         filmStorage.create(film1);
 
@@ -64,18 +63,18 @@ class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void unvalitedUpdateTest() {
-        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
         filmStorage.create(film);
-        Film updateFilm = new Film(2L, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film updateFilm = new Film(2L, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
 
         assertThrows(NotFoundException.class, () -> filmStorage.update(updateFilm));
     }
 
     @Test
     void updateTest() {
-        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
         Film created = filmStorage.create(film);
-        Film updateFilm = new Film(1L, "Титаник", "Боевик", LocalDate.of(2021, 10, 10), 100, new HashSet<>());
+        Film updateFilm = new Film(1L, "Титаник", "Боевик", LocalDate.of(2021, 10, 10), 100);
         filmStorage.update(updateFilm);
         String newName = "Титаник";
 

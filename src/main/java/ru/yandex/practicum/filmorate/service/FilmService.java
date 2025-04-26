@@ -25,8 +25,8 @@ public class FilmService {
     private final InMemoryFilmStorage filmStorage;
     private final InMemoryUserStorage userStorage;
 
-    public Optional<Film> findFilmById(Long id) {
-        return Optional.ofNullable(filmStorage.getFilmMap().get(id));
+    public Film findFilmById(Long id) {
+        return filmStorage.getFilmMap().get(id);
     }
 
     public void addLikeFromFilm(Long filmId, Long userId) {

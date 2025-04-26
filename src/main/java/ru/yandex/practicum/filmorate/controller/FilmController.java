@@ -25,14 +25,12 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> favoriteFilm(@RequestParam(required = false) Long count) {
-        if (count == null) {
-            return filmService.favoriteFilm(10L);
-        } else return filmService.favoriteFilm(count);
+    public List<Film> favoriteFilm(@RequestParam(required = false, defaultValue = "10") Long count) {
+        return filmService.favoriteFilm(count);
     }
 
     @GetMapping("/{id}")
-    public Optional<Film> findFilm(@RequestBody @PathVariable Long id) {
+    public Film findFilm(@RequestBody @PathVariable Long id) {
         return filmService.findFilmById(id);
     }
 

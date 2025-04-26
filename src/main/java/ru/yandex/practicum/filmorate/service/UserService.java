@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -24,8 +25,8 @@ public class UserService {
 
     private final InMemoryUserStorage userStorage;
 
-    public Optional<User> findUserById(Long id) {
-        return Optional.ofNullable(userStorage.getUserMap().get(id));
+    public User findUserById(Long id) {
+        return userStorage.getUserMap().get(id);
     }
 
     public Set<User> commonFriend(Long userID, Long friendID) {
@@ -47,12 +48,6 @@ public class UserService {
         if (user.getUserFriends() != null && user.getUserFriends().contains(friendId)) {
             log.info("Ошибка обработки запроса на добавление в друзья. Пользователь уже в друзьях");
             throw new ValidationException("Пользователь " + friend.getName() + " уже в друзьях у " + user.getName());
-        }
-        if (user.getUserFriends() == null) {
-            user.setUserFriends(new HashSet<>());
-        }
-        if (friend.getUserFriends() == null) {
-            friend.setUserFriends(new HashSet<>());
         }
         user.getUserFriends().add(friendId);
         friend.getUserFriends().add(userId);
@@ -80,6 +75,19 @@ public class UserService {
         user.getUserFriends().remove(friendId);
         friend.getUserFriends().remove(userId);
     }
+
+    public User createUser(User user) {
+        return userStorage.create(user);
+    }
+
+    public Collection<User> findAllUser() {
+        return userStorage.findAll();
+    }
+
+    public User updateUser(User user) {
+        return userStorage.update(user);
+    }
+
 
     public Set<User> findAllFriends(Long id) {
         if (isNull(userStorage.getUserMap().get(id))) {

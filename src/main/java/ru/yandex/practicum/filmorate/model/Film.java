@@ -27,10 +27,7 @@ public class Film {
     @Positive(message = "Продолжительность не может быть отрицательным числом")
     private Integer duration;
 
-    private Set<Long> likeList;
+    private final Set<Long> likeList = new HashSet<>();
 
-    public Film() {
-        likeList = new HashSet<>();
-    }
 }
 

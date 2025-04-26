@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -39,22 +38,22 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
-        return userService.getUserStorage().findAll();
+        return userService.findAllUser();
     }
 
     @GetMapping("/{id}")
-    public Optional<User> findUser(@PathVariable @Valid Long id) {
+    public User findUser(@PathVariable @Valid Long id) {
         return userService.findUserById(id);
 
     }
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
-        return userService.getUserStorage().create(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User update(@RequestBody @Valid User newUser) {
-        return userService.getUserStorage().update(newUser);
+        return userService.updateUser(newUser);
     }
 }

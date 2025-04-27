@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -25,37 +26,48 @@ public class FilmService {
     private final InMemoryUserStorage userStorage;
 
     public Film findFilmById(Long id) {
-        return filmStorage.getFilmMap().get(id);
+        return filmStorage.getFilm(id);
+    }
+
+    public Film createFilm(Film film) {
+        return filmStorage.create(film);
+    }
+
+    public Collection<Film> findAllFilm() {
+        return filmStorage.findAll();
+    }
+
+    public Film updateFilm(Film film) {
+        return filmStorage.update(film);
     }
 
     public void addLikeFromFilm(Long filmId, Long userId) {
-        log.info("Получен запрос на добавление лайка к фильму {} от пользователя {}", filmStorage.getFilmMap().get(filmId), userStorage.getUserMap().get(userId));
+        log.info("Получен запрос на добавление лайка к фильму {} от пользователя {}", filmStorage.getFilm(filmId), userStorage.getUser(userId));
 
-        if (isNull(filmStorage.getFilmMap().get(filmId))) {
+        if (isNull(filmStorage.getFilm(filmId))) {
             throw new NotFoundException("Фильм с id " + filmId + "не найден");
         }
-        if (isNull(userStorage.getUserMap().get(userId))) {
+        if (isNull(userStorage.getUser(userId))) {
             throw new NotFoundException("Пользователь не найден");
         }
-        if (filmStorage.getFilmMap().get(filmId).getLikeList().contains(userId)) {
-            throw new ValidationException("Пользователем " + userStorage.getUserMap().get(userId).getName() + "лайки уже поставлен");
+        if (filmStorage.findLikeFromUser(filmId, userId)) {
+            throw new ValidationException("Пользователем " + userStorage.getUser(userId).getName() + "лайки уже поставлен");
         }
-        filmStorage.getFilmMap().get(filmId).getLikeList().add(userId);
+        filmStorage.addLikeFromFilm(filmId, userId);
     }
 
     public void deleteLikeFromFilm(Long filmId, Long userId) {
-        if (isNull(filmStorage.getFilmMap().get(filmId))) {
+        if (isNull(filmStorage.getFilm(filmId))) {
             throw new NotFoundException("Указанного фильма не найдено");
         }
-        if (isNull(userStorage.getUserMap().get(userId))) {
+        if (isNull(userStorage.getUser(userId))) {
             throw new NotFoundException("Указанного пользователя не найдено");
         }
         if (!filmStorage.getFilmMap().get(filmId).getLikeList().contains(userId)) {
             throw new NotFoundException("Указанный пользователь лайк к фильму не ставил");
         }
-        filmStorage.getFilmMap().get(filmId).getLikeList().remove(userId);
+        filmStorage.deleteLikeFromFilm(filmId, userId);
     }
-
 
     public List<Film> favoriteFilm(Long x) {
         return filmStorage.getFilmMap().values().stream()

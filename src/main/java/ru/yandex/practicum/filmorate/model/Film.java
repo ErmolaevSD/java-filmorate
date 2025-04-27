@@ -28,6 +28,5 @@ public class Film {
     private Integer duration;
 
     private final Set<Long> likeList = new HashSet<>();
-
 }
 

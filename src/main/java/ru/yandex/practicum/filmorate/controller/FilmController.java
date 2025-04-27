@@ -36,16 +36,16 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAll() {
-        return filmService.getFilmStorage().findAll();
+        return filmService.findAllFilm();
     }
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        return filmService.getFilmStorage().create(film);
+        return filmService.createFilm(film);
     }
 
     @PutMapping
     public Film update(@RequestBody @Valid Film newFilm) {
-        return filmService.getFilmStorage().update(newFilm);
+        return filmService.updateFilm(newFilm);
     }
 }

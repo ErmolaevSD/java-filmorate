@@ -15,6 +15,20 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> userMap = new HashMap<>();
 
+    public User getUser(Long id) {
+        return userMap.get(id);
+    }
+
+    public void addFriend(Long userId, Long friendId) {
+        userMap.get(userId).getUserFriends().add(friendId);
+        userMap.get(friendId).getUserFriends().add(userId);
+    }
+
+    public void removeFriend(Long userId, Long friendId) {
+        userMap.get(userId).getUserFriends().remove(friendId);
+        userMap.get(friendId).getUserFriends().remove(userId);
+    }
+
     @Override
     public User create(User user) {
         log.info("Получен запрос на создание пользователя: {}", user);

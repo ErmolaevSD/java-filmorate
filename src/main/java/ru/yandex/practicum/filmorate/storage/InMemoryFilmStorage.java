@@ -26,6 +26,22 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Collections.unmodifiableCollection(filmMap.values());
     }
 
+    public Film getFilm(Long id) {
+        return filmMap.get(id);
+    }
+
+    public boolean findLikeFromUser(Long filmId, Long userId) {
+        return filmMap.get(filmId).getLikeList().contains(userId);
+    }
+
+    public void addLikeFromFilm(Long filmId, Long userId) {
+        filmMap.get(filmId).getLikeList().add(userId);
+    }
+
+    public void deleteLikeFromFilm(Long filmId, Long userId) {
+        filmMap.get(filmId).getLikeList().remove(userId);
+    }
+
     @Override
     public Film create(Film film) {
         log.info("Получен запрос на создание фильма: {}", film);

@@ -24,12 +24,12 @@ public class UserService {
     private final InMemoryUserStorage userStorage;
 
     public User findUserById(Long id) {
-        return userStorage.getUserMap().get(id);
+        return userStorage.getUser(id);
     }
 
     public Set<User> commonFriend(Long userID, Long friendID) {
-        Set<Long> userFriends = userStorage.getUserMap().get(userID).getUserFriends();
-        Set<Long> friendFriends = userStorage.getUserMap().get(friendID).getUserFriends();
+        Set<Long> userFriends = userStorage.getUser(userID).getUserFriends();
+        Set<Long> friendFriends = userStorage.getUser(friendID).getUserFriends();
         return userFriends.stream()
                 .filter(friendFriends::contains)
                 .map(userStorage.getUserMap()::get)
@@ -37,18 +37,17 @@ public class UserService {
     }
 
     public User addFriend(Long userId, Long friendId) {
-        log.info("Получен запрос добавление {} в друзья к {}", userStorage.getUserMap().get(userId), userStorage.getUserMap().get(friendId));
-        User user = userStorage.getUserMap().get(userId);
-        User friend = userStorage.getUserMap().get(friendId);
-        if (isNull(userStorage.getUserMap().get(userId)) || isNull(userStorage.getUserMap().get(friendId))) {
+        log.info("Получен запрос добавление {} в друзья к {}", userStorage.getUser(userId), userStorage.getUser(friendId));
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
+        if (isNull(userStorage.getUser(userId)) || isNull(userStorage.getUser(friendId))) {
             throw new NotFoundException("Пользователь не найден.");
         }
         if (user.getUserFriends() != null && user.getUserFriends().contains(friendId)) {
             log.info("Ошибка обработки запроса на добавление в друзья. Пользователь уже в друзьях");
             throw new ValidationException("Пользователь " + friend.getName() + " уже в друзьях у " + user.getName());
         }
-        user.getUserFriends().add(friendId);
-        friend.getUserFriends().add(userId);
+        userStorage.addFriend(userId, friendId);
         log.info("Успешно обработан запрос на добавление {} в друзья к {}", friend, user);
         return user;
     }
@@ -57,12 +56,12 @@ public class UserService {
         if (isNull(userStorage.getUserMap())) {
             throw new NotFoundException("Список пользователей пуст");
         }
-        if (isNull(userStorage.getUserMap().get(userId)) || isNull(userStorage.getUserMap().get(friendId))) {
+        if (isNull(userStorage.getUser(userId)) || isNull(userStorage.getUser(friendId))) {
             throw new NotFoundException("Пользователя не существует");
         }
-        log.info("Получен запрос удаление {} из друзей у {}", userStorage.getUserMap().get(userId).getName(), userStorage.getUserMap().get(friendId).getName());
-        User user = userStorage.getUserMap().get(userId);
-        User friend = userStorage.getUserMap().get(friendId);
+        log.info("Получен запрос удаление {} из друзей у {}", userStorage.getUser(userId).getName(), userStorage.getUser(friendId).getName());
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
         if (isNull(user.getUserFriends())) {
             throw new NotFoundException("У пользователя нет друзей. Удаление невозможно.");
         }
@@ -70,8 +69,7 @@ public class UserService {
             log.info("Запрос не обработан. Пользователя {} нет в друзьях у {}", friend.getName(), user.getName());
         }
         log.info("Успешно обработан запрос на удаление {} из друзей у {}", friend, user);
-        user.getUserFriends().remove(friendId);
-        friend.getUserFriends().remove(userId);
+        userStorage.removeFriend(userId, friendId);
     }
 
     public User createUser(User user) {
@@ -86,12 +84,11 @@ public class UserService {
         return userStorage.update(user);
     }
 
-
     public Set<User> findAllFriends(Long id) {
-        if (isNull(userStorage.getUserMap().get(id))) {
+        if (isNull(userStorage.getUser(id))) {
             throw new NotFoundException("Пользователь с id " + id + "не найден");
         }
-        Set<Long> userId = userStorage.getUserMap().get(id).getUserFriends();
+        Set<Long> userId = userStorage.getUser(id).getUserFriends();
 
         return userId.stream()
                 .map(userStorage.getUserMap()::get)

@@ -23,8 +23,6 @@ public class ErrorHandler {
     public Map<String, String> handleNotFoundException(final NotFoundException exception) {
         return Map.of("error", exception.getMessage());
     }
-
-
 }
 
 

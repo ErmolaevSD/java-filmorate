@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -46,7 +47,7 @@ class FilmControllerTest extends AbstractControllerTest {
 
         Film unvalidatedFilm1 = new Film(null, "Титаник", "Мелодрамма", LocalDate.of(3000, 10, 10), 100);
 
-        assertThrows(ValidationException.class, () -> filmController.create(unvalidatedFilm));
+        assertThrows(ValidationException.class, () -> filmStorage.create(unvalidatedFilm));
         assertFalse(validator.validate(unvalidatedFilm1).isEmpty());
     }
 
@@ -54,27 +55,27 @@ class FilmControllerTest extends AbstractControllerTest {
     void findAllTest() {
         Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
         Film film1 = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
-        filmController.create(film);
-        filmController.create(film1);
+        filmStorage.create(film);
+        filmStorage.create(film1);
 
-        assertEquals(2, filmController.findAll().size());
+        assertEquals(2, filmStorage.findAll().size());
     }
 
     @Test
     void unvalitedUpdateTest() {
         Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
-        filmController.create(film);
+        filmStorage.create(film);
         Film updateFilm = new Film(2L, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
 
-        assertThrows(ValidationException.class, () -> filmController.update(updateFilm));
+        assertThrows(NotFoundException.class, () -> filmStorage.update(updateFilm));
     }
 
     @Test
     void updateTest() {
         Film film = new Film(null, "Рембо", "Боевик", LocalDate.of(2021, 10, 10), 100);
-        Film created = filmController.create(film);
+        Film created = filmStorage.create(film);
         Film updateFilm = new Film(1L, "Титаник", "Боевик", LocalDate.of(2021, 10, 10), 100);
-        filmController.update(updateFilm);
+        filmStorage.update(updateFilm);
         String newName = "Титаник";
 
         assertEquals(newName, created.getName());

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -49,27 +49,27 @@ class UserControllerTest extends AbstractControllerTest {
         User user = new User(null, "gangan1999@bk.ru", "weekend", "Sergey", LocalDate.of(1999, 2, 12));
         User user2 = new User(null, "gangan1999@bk.ru", "weekend", "Sergey", LocalDate.of(1999, 2, 12));
 
-        userController.create(user2);
-        userController.create(user);
+        userStorage.create(user2);
+        userStorage.create(user);
 
-        assertEquals(2, userController.findAll().size());
+        assertEquals(2, userStorage.findAll().size());
     }
 
     @Test
     void unvalitedUpdateUserTest() {
         User user = new User(null, "gangan1999@bk.ru", "weekend", "Sergey", LocalDate.of(1999, 2, 12));
-        userController.create(user);
+        userStorage.create(user);
         User updateUser = new User(2L, "gangan1999@bk.ru", "weekend", "Sergey", LocalDate.of(1999, 2, 12));
 
-        assertThrows(ValidationException.class, () -> userController.update(updateUser));
+        assertThrows(NotFoundException.class, () -> userStorage.update(updateUser));
     }
 
     @Test
     void updateTest() {
         User user = new User(null, "gangan1999@bk.ru", "weekend", "Sergey", LocalDate.of(1999, 2, 12));
-        User createUser = userController.create(user);
+        User createUser = userStorage.create(user);
         User updateUser = new User(1L, "gangan1999@bk.ru", "Local", "Sergey", LocalDate.of(1999, 2, 12));
-        userController.update(updateUser);
+        userStorage.update(updateUser);
         String newLogin = "Local";
 
         assertEquals(newLogin, createUser.getLogin());

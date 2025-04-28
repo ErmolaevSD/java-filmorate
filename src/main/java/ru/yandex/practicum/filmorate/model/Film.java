@@ -3,12 +3,16 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Data
 @AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Film {
 
     private Long id;
@@ -23,5 +27,6 @@ public class Film {
     @Positive(message = "Продолжительность не может быть отрицательным числом")
     private Integer duration;
 
+    private final Set<Long> likeList = new HashSet<>();
 }
 

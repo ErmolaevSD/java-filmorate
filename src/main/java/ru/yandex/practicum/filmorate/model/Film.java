@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
+import ru.yandex.practicum.filmorate.enums.Genre;
+import ru.yandex.practicum.filmorate.enums.MpaRating;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +30,7 @@ public class Film {
     private Integer duration;
 
     private final Set<Long> likeList = new HashSet<>();
+    private final Set<Genre> genreFilm = new HashSet<>();
+    private final MpaRating mpaRating;
 }
 

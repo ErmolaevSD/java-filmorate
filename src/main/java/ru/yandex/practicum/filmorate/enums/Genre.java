@@ -1,13 +1,27 @@
 package ru.yandex.practicum.filmorate.enums;
 
-public enum Genre {
-    COMEDY("Комедия"),
-    DRAMA("Драма"),
-    ANIMATION("Мультфильм"),
-    THRILLER("Триллер"),
-    DOCUMENTARY("Документальный"),
-    ACTION("Боевик");
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
-    Genre(String genre) {
+public enum Genre {
+    COMEDY(1),
+    DRAMA(2),
+    ANIMATION(3),
+    THRILLER(4),
+    DOCUMENTARY(5),
+    ACTION(6);
+
+    private final Integer dbValue;
+
+    Genre(Integer dbValue) {
+        this.dbValue = dbValue;
+    }
+
+    public static Genre fromDbValue(Integer dbValue) {
+        for (Genre genre : values()) {
+            if (genre.dbValue.equals(dbValue)) {
+                return genre;
+            }
+        }
+        throw new NotFoundException("Указанный жанр не найден");
     }
 }

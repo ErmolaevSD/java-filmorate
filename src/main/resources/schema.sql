@@ -28,8 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS film_genre (
     id integer GENERATED ALWAYS as identity PRIMARY KEY,
     film_id integer NOT NULL REFERENCES films (id),
-    genre_id integer NOT NULL REFERENCES genres (genre_id),
-    description varchar(255)
+    genre_id integer NOT NULL REFERENCES genres (genre_id)
 );
 
 CREATE TABLE IF NOT EXISTS filmLike (

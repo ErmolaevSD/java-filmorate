@@ -9,14 +9,15 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.*;
 
 @Slf4j
-@Component
+@Component("oldUserStorage")
 @Data
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> userMap = new HashMap<>();
 
     public User getUser(Long id) {
-        return userMap.get(id);
+        return
+                userMap.get(id);
     }
 
     public void addFriend(Long userId, Long friendId) {

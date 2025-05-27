@@ -6,13 +6,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMarRower;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Component("newUserStorage")
@@ -47,6 +49,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User newUser) {
+        String findUser = "SELECT * from users where id = " + newUser.getId() + ";";
+        List<User> userList = jdbcTemplate.query(findUser, userMarRower);
+        if (userList.isEmpty()) {
+            throw new NotFoundException("Обновление невозможно, указанного пользователя нет");
+        }
         Long id = newUser.getId();
         String newName = newUser.getName();
         String newLogin = newUser.getLogin();
@@ -79,14 +86,49 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
+        String findUser = "SELECT * from users where id = " + userId + ";";
+        String findFriend = "SELECT * from users where id = " + friendId + ";";
+        List<User> userList = jdbcTemplate.query(findUser, userMarRower);
+        List<User> friendList = jdbcTemplate.query(findFriend, userMarRower);
+        if (userList.isEmpty() || friendList.isEmpty()) {
+            throw new NotFoundException("Обновление невозможно, указанного пользователя нет");
+        }
         String friendsStatus = "Дружба";
-        String query = "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, ?)";
-        jdbcTemplate.update(query, userId, friendId, friendsStatus);
+        String query1 = "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, ?)";
+        jdbcTemplate.update(query1, userId, friendId, friendsStatus);
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
+        String findUser = "SELECT * from users where id = " + userId + ";";
+        String findFriend = "SELECT * from users where id = " + friendId + ";";
+        List<User> userList = jdbcTemplate.query(findUser, userMarRower);
+        List<User> friendList = jdbcTemplate.query(findFriend, userMarRower);
+        if (userList.isEmpty() || friendList.isEmpty()) {
+            throw new NotFoundException("Обновление невозможно, указанного пользователя нет");
+        }
         String query = "DELETE from friends where user_id = " + userId + "and friend_id = " + friendId + ";";
         jdbcTemplate.execute(query);
+    }
+
+    @Override
+    public Set<User> findAllFriends(Long id) {
+        String findUser = "SELECT * from users where id = " + id + ";";
+        List<User> userList = jdbcTemplate.query(findUser, userMarRower);
+        if (userList.isEmpty()) {
+            throw new NotFoundException("Обновление невозможно, указанного пользователя нет");
+        }
+        String query = "SELECT * from users JOIN friends on users.id = friends.friend_id where friends.user_id = ?;";
+        List<User> friends = jdbcTemplate.query(query, userMarRower, id);
+        return new HashSet<>(friends);
+    }
+
+    @Override
+    public Set<User> getCommonFriends(Long userId, Long friendId) {
+
+
+
+
+        return Set.of();
     }
 }

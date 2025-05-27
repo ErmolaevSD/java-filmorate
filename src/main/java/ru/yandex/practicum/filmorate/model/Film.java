@@ -1,13 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
-import ru.yandex.practicum.filmorate.enums.MpaRating;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ru.yandex.practicum.filmorate.MpaRating;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -30,6 +33,7 @@ public class Film {
 
     private final Set<Long> likeList = new HashSet<>();
     private final Set<Genre> genreFilm = new HashSet<>();
-    private final MpaRating mpaRating;
+    private final Mpa mpaRating;
+
 }
 

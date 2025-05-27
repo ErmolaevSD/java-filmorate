@@ -29,7 +29,7 @@ public class FilmDbStorage implements FilmStorage {
         String newDescription = newFilm.getDescription();
         LocalDate newFilmReleaseDate = newFilm.getReleaseDate();
         Integer duration = newFilm.getDuration();
-        Integer mpa_id = newFilm.getMpaRating().getMpaId();
+        Integer mpa_id = newFilm.getMpaRating().getId();
         String sql = "UPDATE films SET name = '" + newName + "', description = '" + newDescription + "', releaseDate = '" + newFilmReleaseDate + "', duration = " + duration + ", mpa_id = " + mpa_id + " WHERE id = " + id + ";";
         jdbcTemplate.execute(sql);
         return newFilm;
@@ -78,7 +78,7 @@ public class FilmDbStorage implements FilmStorage {
             ps.setObject(2, film.getDescription());
             ps.setObject(3, film.getReleaseDate());
             ps.setObject(4, film.getDuration());
-            ps.setObject(5, film.getMpaRating().getMpaId());
+            ps.setObject(5, film.getMpaRating());
             return ps;
         }, keyHolder);
 

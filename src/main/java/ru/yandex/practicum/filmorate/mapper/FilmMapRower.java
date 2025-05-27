@@ -15,7 +15,6 @@ public class FilmMapRower implements RowMapper<Film> {
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
 
-
         Integer mpa_id = rs.getInt("mpa_id");
         MpaRating mpaRating = MpaRating.fromDbValue(mpa_id);
 

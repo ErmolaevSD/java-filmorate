@@ -8,14 +8,11 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
-@Data
 @Component("oldFilmStorage")
+@Data
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> filmMap = new HashMap<>();
@@ -26,8 +23,16 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Collections.unmodifiableCollection(filmMap.values());
     }
 
-    public Film getFilmById(Long id) {
-        return filmMap.get(id);
+    public Optional<Film> getFilm(Long id) {
+        return Optional.ofNullable(filmMap.get(id));
+    }
+
+    public void addLikeFromFilm(Long filmId, Long userId) {
+        filmMap.get(filmId).getLikeList().add(userId);
+    }
+
+    public void deleteLikeFromFilm(Long filmId, Long userId) {
+        filmMap.get(filmId).getLikeList().remove(userId);
     }
 
     @Override
@@ -61,18 +66,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void removeFilm(Long id) {
         log.info("Получен запрос на удаление фильма.");
         if (!filmMap.containsKey(id)) {
-            log.info("Запрос на удаление фильма не обработан. Причина: фильм с id {} не найден.", id);
+            log.info("Запрос на удаление фильма не обработан. Причина: фильм не найден.");
             throw new NotFoundException("Указанного фильма не найдено. Удаление невозможно");
         }
         log.info("Запрос на удаление фильма успешно обработан.");
-    }
-
-    public void deleteLikeFromFilm(Long filmId, Long userId) {
-        filmMap.get(filmId).getLikeList().remove(userId);
-    }
-
-    public boolean findLikeFromUser(Long filmId, Long userId) {
-        return filmMap.get(filmId).getLikeList().contains(userId);
     }
 
     private long getNextId() {
@@ -83,43 +80,5 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .orElse(0);
         return ++currentMaxId;
     }
-
-    public void addLikeFilm(Long filmId, Long userId) {
-        //        log.info("Получен запрос на добавление лайка к фильму {} от пользователя {}", filmStorage.getFilm(filmId), userStorage.getUser(userId));
-//
-//        if (isNull(filmStorage.getFilm(filmId))) {
-//            throw new NotFoundException("Фильм с id " + filmId + "не найден");
-//        }
-//        if (isNull(userStorage.getUser(userId))) {
-//            throw new NotFoundException("Пользователь не найден");
-//        }
-//        if (filmStorage.findLikeFromUser(filmId, userId)) {
-//            throw new ValidationException("Пользователем " + userStorage.getUser(userId).getName() + "лайки уже поставлен");
-//        }
-//        filmStorage.addLikeFromFilm(filmId, userId);
-
-
-
-
-        filmMap.get(filmId).getLikeList().add(userId);
-    }
-
 }
 
-
-//    public void addLikeFromFilm(Long filmId, Long userId) {
-
-//    }
-
-//    public void deleteLikeFromFilm(Long filmId, Long userId) {
-//        if (isNull(filmStorage.getFilm(filmId))) {
-//            throw new NotFoundException("Указанного фильма не найдено");
-//        }
-//        if (isNull(userStorage.getUser(userId))) {
-//            throw new NotFoundException("Указанного пользователя не найдено");
-//        }
-//        if (!filmStorage.getFilmMap().get(filmId).getLikeList().contains(userId)) {
-//            throw new NotFoundException("Указанный пользователь лайк к фильму не ставил");
-//        }
-//        filmStorage.deleteLikeFromFilm(filmId, userId);
-//    }

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS mpa (
 );
 
 CREATE TABLE IF NOT EXISTS films (
-    id integer GENERATED ALWAYS as identity PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS as identity PRIMARY KEY,
     name varchar(40) NOT NULL,
     description varchar(255),
     releaseDate DATE NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS films (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-    id integer GENERATED ALWAYS AS identity PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS identity PRIMARY KEY,
     email varchar(255) NOT NULL,
     login varchar(40) NOT NULL,
     name varchar(40) NOT NULL,

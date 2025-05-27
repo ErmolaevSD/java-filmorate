@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import ru.yandex.practicum.filmorate.enums.Genre;
 import ru.yandex.practicum.filmorate.enums.MpaRating;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

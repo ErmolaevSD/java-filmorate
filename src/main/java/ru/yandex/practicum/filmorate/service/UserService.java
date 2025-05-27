@@ -3,11 +3,14 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.Set;
@@ -18,10 +21,14 @@ import static java.util.Objects.isNull;
 @Slf4j
 @Service
 @Data
-@RequiredArgsConstructor
+
 public class UserService {
 
-    private final InMemoryUserStorage userStorage;
+    private final UserStorage userStorage;
+
+    UserService(@Qualifier("newUserStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public User findUserById(Long id) {
         return userStorage.getUser(id);
@@ -32,7 +39,7 @@ public class UserService {
         Set<Long> friendFriends = userStorage.getUser(friendID).getUserFriends();
         return userFriends.stream()
                 .filter(friendFriends::contains)
-                .map(userStorage.getUserMap()::get)
+                .map(userStorage::getUser)
                 .collect(Collectors.toSet());
     }
 
@@ -53,7 +60,7 @@ public class UserService {
     }
 
     public void deleteFriend(Long userId, Long friendId) {
-        if (isNull(userStorage.getUserMap())) {
+        if (isNull(userStorage.findAll())) {
             throw new NotFoundException("Список пользователей пуст");
         }
         if (isNull(userStorage.getUser(userId)) || isNull(userStorage.getUser(friendId))) {
@@ -91,7 +98,7 @@ public class UserService {
         Set<Long> userId = userStorage.getUser(id).getUserFriends();
 
         return userId.stream()
-                .map(userStorage.getUserMap()::get)
+                .map(userStorage::getUser)
                 .collect(Collectors.toSet());
     }
 }

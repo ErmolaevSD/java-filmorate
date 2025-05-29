@@ -1,23 +1,24 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import ru.yandex.practicum.filmorate.MpaRating;
 
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Film {
+public class Film implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     @NotBlank(message = "Название фильма не может быть пустым")
@@ -32,8 +33,8 @@ public class Film {
     private Integer duration;
 
     private final Set<Long> likeList = new HashSet<>();
-    private final Set<Genre> genreFilm = new HashSet<>();
-    private final Mpa mpaRating;
+    private final List<Genre> genres = new ArrayList<>();
+    private Mpa mpa;
 
 }
 

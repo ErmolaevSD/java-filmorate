@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.GenreService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/genres")
@@ -22,7 +23,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Genre> findGenreById(@RequestBody @PathVariable Integer id) {
+    public Genre findGenreById(@RequestBody @PathVariable Integer id) {
         return genreService.findGenreById(id);
     }
 }

@@ -23,7 +23,6 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserMarRower userMarRower;
 
-
     @Override
     public User create(User user) {
         String query = "INSERT INTO users (email, login, name, birthdate) VALUES (?,?,?,?);";
@@ -119,16 +118,18 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Обновление невозможно, указанного пользователя нет");
         }
         String query = "SELECT * from users JOIN friends on users.id = friends.friend_id where friends.user_id = ?;";
-        List<User> friends = jdbcTemplate.query(query, userMarRower, id);
-        return new HashSet<>(friends);
+        return new HashSet<>(jdbcTemplate.query(query, userMarRower, id));
     }
 
     @Override
     public Set<User> getCommonFriends(Long userId, Long friendId) {
-
-
-
-
-        return Set.of();
+        String query = "SELECT * " +
+                "FROM users " +
+                "WHERE id IN (SELECT friends.friend_Id " +
+                "    FROM friends" +
+                "    WHERE friends.user_Id = ? OR friends.user_Id = ?" +
+                "    GROUP BY friends.friend_Id" +
+                "    HAVING COUNT(friends.user_Id) = 2);";
+        return new HashSet<>(jdbcTemplate.query(query, userMarRower, userId, friendId));
     }
 }

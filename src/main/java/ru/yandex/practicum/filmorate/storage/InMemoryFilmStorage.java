@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.util.*;
 
+import static java.util.Objects.isNull;
+
 @Slf4j
 @Component("oldFilmStorage")
 @Data
@@ -32,7 +34,23 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public void deleteLikeFromFilm(Long filmId, Long userId) {
+        if (isNull(filmMap.get(filmId))) {
+            throw new NotFoundException("Указанного фильма не найдено");
+        }
+        if (isNull(filmMap.get(userId))) {
+            throw new NotFoundException("Указанного пользователя не найдено");
+        }
+        if (!filmMap.get(filmId).getLikeList().contains(userId)) {
+            throw new NotFoundException("Указанный пользователь лайк к фильму не ставил");
+        }
         filmMap.get(filmId).getLikeList().remove(userId);
+    }
+
+    @Override
+    public List<Film> favoriteFilm(Long x) {
+        return filmMap.values().stream().sorted(Comparator.comparingInt(film -> film.getLikeList().size()))
+                .limit(x)
+                .toList().reversed();
     }
 
     @Override

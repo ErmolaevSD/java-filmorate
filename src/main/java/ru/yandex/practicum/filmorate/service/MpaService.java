@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.mapper.GenreMapRower;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.MpaMapRower;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
@@ -23,8 +24,13 @@ public class MpaService {
         return jdbcTemplate.query(query, mpaMapRower);
     }
 
-    public Optional<Mpa> findMpaById(Integer id) {
+    public Mpa findMpaById(Integer id) {
+        String findMpa = "SELECT * from mpa where mpa_id = " + id + ";";
+        List<Mpa> mpaList = jdbcTemplate.query(findMpa, mpaMapRower);
+        if (mpaList.isEmpty()) {
+            throw new NotFoundException("Обновление невозможно, указанного пользователя нет");
+        }
         String query = "SELECT * from mpa where mpa_id = ?;";
-        return Optional.ofNullable(jdbcTemplate.queryForObject(query, mpaMapRower, id));
+            return jdbcTemplate.queryForObject(query, mpaMapRower, id);
     }
 }

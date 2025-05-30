@@ -99,7 +99,87 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
+        validateFilm(film);
+
+        Long filmId = saveFilm(film);
+        film.setId(filmId);
+
+            // Сохраняем жанры, если они есть
+    if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+        saveFilmGenres(film,filmId, film.getGenres());
+    }
+
+//        // Удаляем дубликаты жанров перед сохранением
+//        if (film.getGenres() != null) {
+//            List<Genre> uniqueGenres = film.getGenres().stream()
+//                    .filter(Objects::nonNull)
+//                    .distinct()
+//                    .collect(Collectors.toList());
+//            film.getGenres().addAll(uniqueGenres);
+//            // Проверка существования жанров
+//            if (!uniqueGenres.isEmpty()) {
+//                String inSql = String.join(",", Collections.nCopies(uniqueGenres.size(), "?"));
+//                List<Integer> genreIds = uniqueGenres.stream().map(Genre::getId).collect(Collectors.toList());
+//
+//                if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+//                    // Сортируем и удаляем дубликаты
+//                    Set<Genre> uniqueSortedGenres = film.getGenres().stream()
+//                            .filter(Objects::nonNull)
+//                            .sorted(Comparator.comparingInt(Genre::getId))
+//                            .collect(Collectors.toCollection(LinkedHashSet::new));
+//
+//                    film.getGenres().addAll(new ArrayList<>(uniqueSortedGenres));
+//
+//                    List<Integer> existingIds = jdbcTemplate.queryForList(
+//                            "SELECT genre_id FROM genres WHERE genre_id IN (" + inSql + ")",
+//                            Integer.class, genreIds.toArray());
+//
+//                    if (existingIds.size() != uniqueGenres.size()) {
+//                        Set<Integer> missingIds = new HashSet<>(genreIds);
+//                        missingIds.removeAll(existingIds);
+//                        throw new NotFoundException("Жанры с ID " + missingIds + " не существуют");
+//                    }
+//                }
+//
+//            }
+//
+//            if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+//                String genreQuery = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
+//                //Set<Genre> uniqueGenres = new LinkedHashSet<>(film.getGenres());
+//
+//                jdbcTemplate.batchUpdate(genreQuery,
+//                        uniqueGenres.stream().map(genre -> new Object[]{film.getId(), genre.getId()}).collect(Collectors.toList()),
+//                        new int[]{Types.BIGINT, Types.INTEGER});
+//            }
+//        }
+        return film;
+    }
+
+    private Long saveFilm(Film film) {
         String query = "INSERT INTO films (name, description, releaseDate, duration, mpa_id) VALUES (?,?,?,?,?);";
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, film.getName());
+            ps.setString(2, film.getDescription());
+            ps.setObject(3, film.getReleaseDate());
+            ps.setInt(4, film.getDuration());
+            ps.setInt(5, film.getMpa().getId());
+            return ps;
+        }, keyHolder);
+
+        return keyHolder.getKeyAs(Long.class);
+    }
+
+//@Override
+
+
+//
+//    return film;
+//}
+//
+    private void validateFilm(Film film) {
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Дата релиза должна быть позднее 28.12.1895");
         }
@@ -107,63 +187,74 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getMpa() == null || film.getMpa().getId() == null) {
             throw new ValidationException("MPA обязательно должно быть указано");
         }
+    }
+//
+    private void saveFilmGenres(Film film,Long filmId, Set<Genre> genres) {
+        // Удаляем дубликаты и null-значения
 
-        // Удаляем дубликаты жанров перед сохранением
-        if (film.getGenres() != null) {
-            List<Genre> uniqueGenres = film.getGenres().stream()
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .collect(Collectors.toList());
-            film.getGenres().addAll(uniqueGenres);
-            // Проверка существования жанров
-            if (!uniqueGenres.isEmpty()) {
-                String inSql = String.join(",", Collections.nCopies(uniqueGenres.size(), "?"));
-                List<Integer> genreIds = uniqueGenres.stream().map(Genre::getId).collect(Collectors.toList());
+        Set<Genre> uniqueGenres = genres.stream()
+                .filter(Objects::nonNull)
+                .filter(genre -> genre.getId() != null)
+                .collect(Collectors.toCollection(
+                        () -> new TreeSet<>(Comparator.comparing(Genre::getId))
+                ));
+        Set<Genre> sorted = new TreeSet<>(uniqueGenres);
 
-                List<Integer> existingIds = jdbcTemplate.queryForList(
-                        "SELECT genre_id FROM genres WHERE genre_id IN (" + inSql + ")",
-                        Integer.class, genreIds.toArray());
+//        Set<Genre> uniqueGenres = new TreeSet<>(Comparator.nullsLast(Comparator.comparing(Genre::getId,Comparator.nullsLast(Comparator.naturalOrder()))));
+//                uniqueGenres.addAll(genres);
 
-                if (existingIds.size() != uniqueGenres.size()) {
-                    Set<Integer> missingIds = new HashSet<>(genreIds);
-                    missingIds.removeAll(existingIds);
-                    throw new NotFoundException("Жанры с ID " + missingIds + " не существуют");
-                }
-            }
+        // Проверяем существование жанров в БД
+        validateGenresExist(uniqueGenres);
 
+        // Сохраняем связи
+        String genreQuery = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
+        film.getGenres().clear();
+        film.getGenres().addAll(sorted);
+
+        film.getGenres().stream().sorted();
+
+
+
+
+        String sql = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
+        List<Object[]> batchArgs = film.getGenres().stream()
+                .sorted(Comparator.comparing(Genre::getId))
+                .map(g -> new Object[]{film.getId(), g.getId()})
+                .collect(Collectors.toList());
+
+        jdbcTemplate.batchUpdate(sql, batchArgs);
+
+//
+//        jdbcTemplate.batchUpdate(genreQuery,
+//                uniqueGenres.stream()
+//                        .map(genre -> new Object[]{filmId, genre.getId()})
+//                        .collect(Collectors.toList()),
+//                new int[]{Types.BIGINT, Types.INTEGER});
+
+
+
+
+
+    }
+
+    private void validateGenresExist(Set<Genre> genres) {
+        if (genres.isEmpty()) return;
+
+        List<Integer> genreIds = genres.stream()
+                .map(Genre::getId)
+                .collect(Collectors.toList());
+
+        String inSql = String.join(",", Collections.nCopies(genreIds.size(), "?"));
+        List<Integer> existingIds = jdbcTemplate.queryForList(
+                "SELECT genre_id FROM genres WHERE genre_id IN (" + inSql + ")",
+                Integer.class,
+                genreIds.toArray());
+
+        if (existingIds.size() != genreIds.size()) {
+            Set<Integer> missingIds = new HashSet<>(genreIds);
+            missingIds.removeAll(existingIds);
+            throw new NotFoundException("Жанры с ID " + missingIds + " не существуют");
         }
-
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
-            ps.setObject(1, film.getName());
-            ps.setObject(2, film.getDescription());
-            ps.setObject(3, film.getReleaseDate());
-            ps.setObject(4, film.getDuration());
-            ps.setObject(5, film.getMpa().getId());
-            return ps;
-        }, keyHolder);
-
-        Long id = keyHolder.getKeyAs(Long.class);
-
-        if (id != null) {
-            film.setId(id);
-        } else {
-            throw new NotFoundException("Не удалось сохранить данные");
-        }
-
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            String genreQuery = "INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)";
-            Set<Genre> uniqueGenres = new LinkedHashSet<>(film.getGenres());
-
-            jdbcTemplate.batchUpdate(genreQuery,
-                    uniqueGenres.stream().map(genre -> new Object[]{film.getId(), genre.getId()}).collect(Collectors.toList()),
-                    new int[]{Types.BIGINT, Types.INTEGER});
-        }
-        return film;
     }
 }
 

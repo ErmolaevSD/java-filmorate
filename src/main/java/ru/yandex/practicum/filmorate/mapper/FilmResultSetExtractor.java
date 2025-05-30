@@ -43,6 +43,9 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
             }
             if (films.containsKey(filmId)) {
                 Film film = films.get(filmId);
+
+
+
                 film.getGenres().add(genre);
 
             } else {
@@ -51,7 +54,10 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
                         rs.getString("description"),
                         rs.getObject("releaseDate", LocalDate.class),
                         rs.getInt("duration"), mpa);
-                newFilm.getGenres().add(genre);
+
+                if (genre != null) {
+                    newFilm.getGenres().add(genre);
+                }
                 films.put(newFilm.getId(), newFilm);
             }
         }

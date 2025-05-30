@@ -7,10 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Data
@@ -33,8 +30,9 @@ public class Film implements Serializable {
     private Integer duration;
 
     private final Set<Long> likeList = new HashSet<>();
-    private final List<Genre> genres = new ArrayList<>();
+    private Set<Genre> genres = new TreeSet<>();
     private Mpa mpa;
 
+    //Comparator.nullsLast(Comparator.comparing(Genre::getId,Comparator.nullsLast(Comparator.naturalOrder())))
 }
 

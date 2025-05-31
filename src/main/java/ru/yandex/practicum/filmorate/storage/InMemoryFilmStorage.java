@@ -8,12 +8,13 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.*;
-
-import static java.util.Objects.isNull;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
-@Component("oldFilmStorage")
+@Component
 @Data
 public class InMemoryFilmStorage implements FilmStorage {
 
@@ -25,8 +26,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         return Collections.unmodifiableCollection(filmMap.values());
     }
 
-    public Optional<Film> getFilm(Long id) {
-        return Optional.ofNullable(filmMap.get(id));
+    public Film getFilm(Long id) {
+        return filmMap.get(id);
+    }
+
+    public boolean findLikeFromUser(Long filmId, Long userId) {
+        return filmMap.get(filmId).getLikeList().contains(userId);
     }
 
     public void addLikeFromFilm(Long filmId, Long userId) {
@@ -34,23 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public void deleteLikeFromFilm(Long filmId, Long userId) {
-        if (isNull(filmMap.get(filmId))) {
-            throw new NotFoundException("Указанного фильма не найдено");
-        }
-        if (isNull(filmMap.get(userId))) {
-            throw new NotFoundException("Указанного пользователя не найдено");
-        }
-        if (!filmMap.get(filmId).getLikeList().contains(userId)) {
-            throw new NotFoundException("Указанный пользователь лайк к фильму не ставил");
-        }
         filmMap.get(filmId).getLikeList().remove(userId);
-    }
-
-    @Override
-    public List<Film> favoriteFilm(Long x) {
-        return filmMap.values().stream().sorted(Comparator.comparingInt(film -> film.getLikeList().size()))
-                .limit(x)
-                .toList().reversed();
     }
 
     @Override
@@ -81,13 +70,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void removeFilm(Long id) {
+    public Film removeFilm(Film film) {
         log.info("Получен запрос на удаление фильма.");
-        if (!filmMap.containsKey(id)) {
-            log.info("Запрос на удаление фильма не обработан. Причина: фильм не найден.");
+        if (!filmMap.containsKey(film.getId())) {
+            log.info("Запрос на удаление фильма не обработан. Причина: {} не найден.", film);
             throw new NotFoundException("Указанного фильма не найдено. Удаление невозможно");
         }
-        log.info("Запрос на удаление фильма успешно обработан.");
+        log.info("Запрос на удаление фильма {} успешно обработан.", film);
+        return filmMap.remove(film.getId());
     }
 
     private long getNextId() {
@@ -99,4 +89,5 @@ public class InMemoryFilmStorage implements FilmStorage {
         return ++currentMaxId;
     }
 }
+
 

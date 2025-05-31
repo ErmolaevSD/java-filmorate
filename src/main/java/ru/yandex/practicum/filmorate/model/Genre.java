@@ -2,8 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
@@ -12,7 +10,11 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class Genre implements Comparable<Genre> {
 
+    @NotNull
     private final Integer id;
+
+    @NotNull
+    private final String name;
 
     @Override
     public boolean equals(Object object) {
@@ -26,9 +28,6 @@ public class Genre implements Comparable<Genre> {
     public int hashCode() {
         return Objects.hash(id, name);
     }
-
-    @NotNull
-    private final String name;
 
     @Override
     public int compareTo(Genre other) {

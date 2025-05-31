@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.GenreService;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
@@ -28,12 +27,7 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
         Map<Long, Film> films = new HashMap<>();
         while (rs.next()) {
             Long filmId = rs.getLong("id");
-            Mpa mpa = null;
             Genre genre = null;
-            Integer mpa_id = rs.getInt("mpa_id");
-            if (!rs.wasNull()) {
-                mpa = mpaService.findMpaById(mpa_id);
-            }
             Integer genre_id = rs.getInt("genre_id");
             if (!rs.wasNull()) {
                 genre = genreService.findGenreById(genre_id);
@@ -45,11 +39,11 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
             } else {
                 Film newFilm = new Film();
                 newFilm.setId(rs.getLong("id"));
-                newFilm.setName( rs.getString("name"));
+                newFilm.setName(rs.getString("name"));
                 newFilm.setDescription(rs.getString("description"));
                 newFilm.setReleaseDate(rs.getObject("releaseDate", LocalDate.class));
                 newFilm.setDuration(rs.getInt("duration"));
-                newFilm.setMpa(mpa);
+                newFilm.setMpa(mpaService.findMpaById(rs.getInt("mpa_id")));
 
                 if (genre != null) {
                     newFilm.getGenres().add(genre);

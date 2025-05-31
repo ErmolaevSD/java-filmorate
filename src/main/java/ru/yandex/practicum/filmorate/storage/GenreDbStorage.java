@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.GenreMapRower;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;
 
 @Component
+@Repository
 @RequiredArgsConstructor
 public class GenreDbStorage implements GenreStorage {
 

@@ -13,7 +13,6 @@ import java.util.Set;
 @Slf4j
 @Service
 @Data
-
 public class UserService {
 
     private final UserStorage userStorage;

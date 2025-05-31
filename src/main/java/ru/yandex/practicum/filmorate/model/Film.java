@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.*;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Film implements Serializable {
 
@@ -33,6 +35,6 @@ public class Film implements Serializable {
     private Set<Genre> genres = new TreeSet<>();
     private Mpa mpa;
 
-    //Comparator.nullsLast(Comparator.comparing(Genre::getId,Comparator.nullsLast(Comparator.naturalOrder())))
+    //
 }
 

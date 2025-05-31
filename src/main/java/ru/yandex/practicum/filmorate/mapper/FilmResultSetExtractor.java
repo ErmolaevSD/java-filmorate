@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -43,17 +40,16 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
             }
             if (films.containsKey(filmId)) {
                 Film film = films.get(filmId);
-
-
-
                 film.getGenres().add(genre);
 
             } else {
-                Film newFilm = new Film(rs.getLong("id"),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getObject("releaseDate", LocalDate.class),
-                        rs.getInt("duration"), mpa);
+                Film newFilm = new Film();
+                newFilm.setId(rs.getLong("id"));
+                newFilm.setName( rs.getString("name"));
+                newFilm.setDescription(rs.getString("description"));
+                newFilm.setReleaseDate(rs.getObject("releaseDate", LocalDate.class));
+                newFilm.setDuration(rs.getInt("duration"));
+                newFilm.setMpa(mpa);
 
                 if (genre != null) {
                     newFilm.getGenres().add(genre);

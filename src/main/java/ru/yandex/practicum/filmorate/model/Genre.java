@@ -1,14 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 
-
-@Getter
+@Data
 @RequiredArgsConstructor
 public class Genre implements Comparable<Genre> {
 
@@ -32,18 +32,6 @@ public class Genre implements Comparable<Genre> {
 
     @Override
     public int compareTo(Genre other) {
-        if (other == null) {
-            return 1; // null всегда считаем меньше
-        }
-        if (this.id == null && other.id == null) {
-            return 0;
-        }
-        if (this.id == null) {
-            return -1;
-        }
-        if (other.id == null) {
-            return 1;
-        }
         return this.id.compareTo(other.id);
     }
 }

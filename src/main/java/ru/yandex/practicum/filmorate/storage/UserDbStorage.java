@@ -92,9 +92,8 @@ public class UserDbStorage implements UserStorage {
         if (userList.isEmpty() || friendList.isEmpty()) {
             throw new NotFoundException("Обновление невозможно, указанного пользователя нет");
         }
-        String friendsStatus = "Дружба";
-        String query1 = "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, ?)";
-        jdbcTemplate.update(query1, userId, friendId, friendsStatus);
+        String query1 = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
+        jdbcTemplate.update(query1, userId, friendId);
     }
 
     @Override

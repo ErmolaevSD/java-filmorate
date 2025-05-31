@@ -41,6 +41,5 @@ CREATE TABLE IF NOT EXISTS friends (
     id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id integer NOT NULL REFERENCES users (id),
     friend_id integer NOT NULL REFERENCES users (id),
-    status varchar(40) NOT NULL,
     UNIQUE (user_id, friend_id)
 );

@@ -28,9 +28,9 @@ public class FilmResultSetExtractor implements ResultSetExtractor<List<Film>> {
         while (rs.next()) {
             Long filmId = rs.getLong("id");
             Genre genre = null;
-            Integer genre_id = rs.getInt("genre_id");
+            Integer genreId = rs.getInt("genre_id");
             if (!rs.wasNull()) {
-                genre = genreService.findGenreById(genre_id);
+                genre = genreService.findGenreById(genreId);
             }
             if (films.containsKey(filmId)) {
                 Film film = films.get(filmId);

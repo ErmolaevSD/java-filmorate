@@ -40,15 +40,15 @@ public class FilmDbStorage implements FilmStorage {
         String newDescription = newFilm.getDescription();
         LocalDate newFilmReleaseDate = newFilm.getReleaseDate();
         Integer duration = newFilm.getDuration();
-        Integer mpa_id = newFilm.getMpa().getId();
-        String sql ="""
+        Integer mpaId = newFilm.getMpa().getId();
+        String sql = """
         UPDATE films SET name = '%s',
         description = '%s',
         releaseDate = '%s',
         duration = %d,
         mpa_id = %d
         WHERE id = %d;
-        """.formatted(newName, newDescription, newFilmReleaseDate, duration, mpa_id, id);
+        """.formatted(newName, newDescription, newFilmReleaseDate, duration, mpaId, id);
         jdbcTemplate.execute(sql);
         return newFilm;
     }
@@ -84,8 +84,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
-        String FIND_ALL_FILMS = "SELECT * FROM films;";
-        return jdbcTemplate.query(FIND_ALL_FILMS, filmMapRower);
+        String findAllFilms = "SELECT * FROM films;";
+        return jdbcTemplate.query(findAllFilms, filmMapRower);
     }
 
     @Override

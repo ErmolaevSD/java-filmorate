@@ -41,7 +41,14 @@ public class FilmDbStorage implements FilmStorage {
         LocalDate newFilmReleaseDate = newFilm.getReleaseDate();
         Integer duration = newFilm.getDuration();
         Integer mpa_id = newFilm.getMpa().getId();
-        String sql = "UPDATE films SET name = '" + newName + "', description = '" + newDescription + "', releaseDate = '" + newFilmReleaseDate + "', duration = " + duration + ", mpa_id = " + mpa_id + " WHERE id = " + id + ";";
+        String sql ="""
+        UPDATE films SET name = '%s',
+        description = '%s',
+        releaseDate = '%s',
+        duration = %d,
+        mpa_id = %d
+        WHERE id = %d;
+        """.formatted(newName, newDescription, newFilmReleaseDate, duration, mpa_id, id);
         jdbcTemplate.execute(sql);
         return newFilm;
     }
@@ -54,9 +61,23 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getFilm(Long id) {
-        String quer = "SELECT f.id AS film_id, f.name, f.description, f.releaseDate, f.duration, f.mpa_id, m.mpa_id AS mpa_id, m.description AS mpa_description, g.genre_id AS genre_id,g.description AS genre_description " +
-                "FROM films f " +
-                "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id LEFT JOIN film_genre fg ON f.id = fg.film_id LEFT JOIN genres g ON fg.genre_id = g.genre_id WHERE f.id = ? ORDER BY g.genre_id;";
+        String quer = """
+                SELECT f.id AS film_id,
+                f.name,
+                f.description,
+                f.releaseDate,
+                f.duration,
+                f.mpa_id,
+                m.mpa_id AS mpa_id,
+                m.description AS mpa_description,
+                g.genre_id AS genre_id,g.description AS genre_description
+                FROM films f
+                LEFT JOIN mpa m ON f.mpa_id = m.mpa_id
+                LEFT JOIN film_genre fg ON f.id = fg.film_id
+                LEFT JOIN genres g ON fg.genre_id = g.genre_id
+                WHERE f.id = ?
+                ORDER BY g.genre_id;
+        """;
         List<Film> films = jdbcTemplate.query(quer, filmResultSetExtractor, id);
         return films != null ? films.stream().findFirst() : Optional.empty();
     }
@@ -81,11 +102,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> favoriteFilm(Long x) {
-        String query = "SELECT films.* FROM films " +
-                "JOIN filmLike ON films.id = filmLike.film_id " +
-                "GROUP BY films.id " +
-                "ORDER BY COUNT(filmLike.user_id) DESC " +
-                "LIMIT ?;";
+        String query = """
+                SELECT films.* FROM films
+                JOIN filmLike ON films.id = filmLike.film_id
+                GROUP BY films.id
+                ORDER BY COUNT(filmLike.user_id) DESC
+                LIMIT ?;
+                """;
         return jdbcTemplate.query(query, filmMapRower, x);
     }
 

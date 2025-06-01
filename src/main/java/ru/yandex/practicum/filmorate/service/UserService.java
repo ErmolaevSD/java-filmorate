@@ -17,7 +17,7 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    UserService(@Qualifier("newUserStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("newUserStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 

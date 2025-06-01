@@ -23,7 +23,7 @@ public class FilmService {
     private final MpaService mpaService;
     private final GenreService genreService;
 
-    FilmService(@Qualifier("newFilmStorage") FilmStorage filmStorage, @Qualifier("newUserStorage") UserStorage userStorage, MpaService mpaService, GenreService genreService) {
+    public FilmService(@Qualifier("newFilmStorage") FilmStorage filmStorage, @Qualifier("newUserStorage") UserStorage userStorage, MpaService mpaService, GenreService genreService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.mpaService = mpaService;

@@ -20,7 +20,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Genre findGenreById(@RequestBody @PathVariable Integer id) {
+    public Genre findGenreById(@PathVariable Integer id) {
         return genreService.findGenreById(id);
     }
 }

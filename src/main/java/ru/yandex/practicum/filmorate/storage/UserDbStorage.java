@@ -58,7 +58,13 @@ public class UserDbStorage implements UserStorage {
         String newLogin = newUser.getLogin();
         String newEmail = newUser.getEmail();
         LocalDate newBirthdate = newUser.getBirthday();
-        String sql = "UPDATE users SET email = '" + newEmail + "', login = '" + newLogin + "', name = '" + newName + "', birthdate = '" + newBirthdate + "' WHERE id = " + id + ";";
+        String sql = """
+                UPDATE users SET email = '%s',
+                login = '%s',
+                name = '%s',
+                birthdate = '%s'
+                WHERE id = %d;
+                """.formatted(newEmail, newLogin, newName, newBirthdate, id);
         jdbcTemplate.execute(sql);
         return newUser;
     }
@@ -79,8 +85,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User getUser(Long id) {
         String query = "SELECT * FROM users WHERE id = ?;";
-        User user = jdbcTemplate.queryForObject(query, userMarRower, id);
-        return user;
+        return jdbcTemplate.queryForObject(query, userMarRower, id);
     }
 
     @Override
@@ -122,13 +127,15 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Set<User> getCommonFriends(Long userId, Long friendId) {
-        String query = "SELECT * " +
-                "FROM users " +
-                "WHERE id IN (SELECT friends.friend_Id " +
-                "    FROM friends" +
-                "    WHERE friends.user_Id = ? OR friends.user_Id = ?" +
-                "    GROUP BY friends.friend_Id" +
-                "    HAVING COUNT(friends.user_Id) = 2);";
+        String query = """
+                SELECT *
+                FROM users
+                WHERE id IN (SELECT friends.friend_Id
+                FROM friends
+                WHERE friends.user_Id = ? OR friends.user_Id = ?
+                GROUP BY friends.friend_Id
+                HAVING COUNT(friends.user_Id) = 2);
+                """;
         return new HashSet<>(jdbcTemplate.query(query, userMarRower, userId, friendId));
     }
 }
